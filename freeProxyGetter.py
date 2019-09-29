@@ -26,7 +26,7 @@ class FreeProxyGetter(metaclass=ProxyMetaclass):
         yield from get_proxies(['http://www.66ip.cn/{}.html'.format(page) for page in range(1, 5)], r'<td>([\d\.]+?)</td>\s*<td>(\d+?)</td>')
 
     def crawl_kxdaili(self):
-        yield from get_proxies(['http://www.kxdaili.com/dailiip/1/{}.html'.format(i) for i in range(1, 4)], r'<td>([\d\.]+?)</td>\s*<td>(\d+?)</td>')
+        yield from get_proxies(['http://www.kxdaili.com/dailiip/1/{}.html'.format(page) for page in range(1, 4)], r'<td>([\d\.]+?)</td>\s*<td>(\d+?)</td>')
 
 if __name__ == "__main__":
     """
