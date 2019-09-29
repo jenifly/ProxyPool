@@ -19,3 +19,5 @@ POOL_LEN_CHECK_CYCLE = 20
 
 # 测试API
 TEST_API = 'http://httpbin.org/get'
+
+WEB_API_PORT = 2345
