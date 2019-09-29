@@ -1,0 +1,1 @@
+If select is not sufficient, please use **asyncio.Semaphore** to restriction.
