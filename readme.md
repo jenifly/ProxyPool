@@ -1,5 +1,29 @@
-If select is not sufficient, please use **asyncio.Semaphore** to restriction.
+基于asyncio、aiohttp、uvloop实现的并发代理池，具有简洁、高效、易扩展等特点。同步访问redis队列，实现伪原子性。
 
-如果系统select耗尽，请使用**asyncio.Semaphore**限制。
+## How to use (asyncio)
+```python
+  
+from proxyPool_asyncio.poxyPool import PoxyPool
+from proxyPool_asyncio.freeProxyGetter import FreeProxyGetter
 
-![uGRbHx.png](https://s2.ax1x.com/2019/09/29/uGRbHx.png)
+
+class MyFreeProxyGetter(FreeProxyGetter):
+    async def crawl_kuaidaili(self):
+        return await self.get_proxies(['https://www.kuaidaili.com/free/inha/{}/'.format(page) for page in range(1, 2)], r'<td data-title="IP">([\d\.]+?)</td>\s*<td data-title="PORT">(\w+)</td>')
+
+    async def crawl_xicidaili(self):
+        return await self.get_proxies(['http://www.xicidaili.com/wt/{}'.format(page) for page in range(1, 3)], r'<td>([\d\.]+?)</td>\s*<td>(\d+?)</td>')
+
+    async def crawl_66ip(self):
+        return await self.get_proxies(['http://www.66ip.cn/{}.html'.format(page) for page in range(1, 5)], r'<td>([\d\.]+?)</td>\s*<td>(\d+?)</td>')
+
+    async def crawl_kxdaili(self):
+        return await self.get_proxies(['http://www.kxdaili.com/dailiip/1/{}.html'.format(page) for page in range(1, 4)], r'<td>([\d\.]+?)</td>\s*<td>(\d+?)</td>')
+
+if __name__ == "__main__":
+    PoxyPool.start(MyFreeProxyGetter)
+```
+
+继承`FreeProxyGetter`类，实现`async def crawl_xxx()`方法，方法名必须为`crawl_`前缀。`self.get_proxies()`接受两个参数，第一个为代理网页url的可迭代对象，第二个为正则表达式。
+
+在asyncio版本中，因所有方法都在一个事件循环中运行，在代理池上限设置的比较高时，可能会造成某些系统（如windows）`select`资源耗尽而抛出异常使得程序中断。对此，请使用`asyncio.Semaphore`限制并发量。
