@@ -1,6 +1,6 @@
 基于asyncio、aiohttp、uvloop实现的并发代理池，具有简洁、高效、易扩展等特点。同步访问redis队列，实现伪原子性。
 
-## How to use (asyncio)
+## How to use
 ```python
   
 from proxyPool_asyncio.poxyPool import PoxyPool

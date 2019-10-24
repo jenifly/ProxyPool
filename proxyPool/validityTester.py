@@ -22,9 +22,6 @@ class ValidityTester(object):
         self._raw_proxies = proxies
 
     async def test_single_proxy(self, proxy):
-        """
-        text one proxy, if valid, put them to usable_proxies.
-        """
         try:
             async with aiohttp.ClientSession() as session:
                 try:
@@ -42,14 +39,9 @@ class ValidityTester(object):
             print(s)
 
     def test_proxies(self):
-        """
-        aio test all proxies.
-        """
         print('ValidityTester is working')
         try:
-            loop = asyncio.get_event_loop()
-            tasks = [self.test_single_proxy(proxy)
-                     for proxy in self._raw_proxies]
-            loop.run_until_complete(asyncio.wait(tasks))
+            for proxy in self._raw_proxies:
+                asyncio.create_task(self.test_single_proxy(proxy))
         except (ValueError, TimeoutError):
             print('Async Error')
