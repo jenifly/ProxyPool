@@ -1,10 +1,11 @@
 import asyncio
-from asyncio import TimeoutError
 
 import aiohttp
 
-from db import conn
-from setting import GET_PROXY_TIMEOUT, TEST_API
+from asyncio import TimeoutError
+
+from .db import conn
+from .setting import GET_PROXY_TIMEOUT, TEST_API
 
 try:
     from aiohttp.errors import ProxyConnectionError, ServerDisconnectedError, ClientResponseError, ClientConnectorError

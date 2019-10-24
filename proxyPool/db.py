@@ -1,5 +1,6 @@
 import redis
-from setting import HOST, PORT, PASSWORD
+
+from .setting import HOST, PORT, PASSWORD
 
 
 class PoolEmptyError(Exception):
