@@ -36,6 +36,18 @@ class PoxyPool:
     async def check_pool(adder=None):
         if conn.queue_len < POOL_UPPER_THRESHOLD:
             await adder.add_to_queue()
+    
+    @classmethod
+    def web(slef):
+        app = web.Application()
+        async def get_proxy(request):
+            return web.Response(text=str(conn.pop()))
+
+        async def get_counts(request):
+            return web.Response(text=str(conn.queue_len))
+
+        app.add_routes([web.get('/get', get_proxy), web.get('/count', get_counts)])
+        return app
 
     @classmethod
     def start(cls, proxy_getter=None):
@@ -46,15 +58,6 @@ class PoxyPool:
         loop = asyncio.get_event_loop()
         loop.create_task(cls.check_pool(adder))
         loop.create_task(cls.valid_proxy(tester))
-
-        app = web.Application()
-        async def get_proxy(request):
-            return web.Response(text=str(conn.pop()))
-
-        async def get_counts(request):
-            return web.Response(text=str(conn.queue_len))
-
-        app.add_routes([web.get('/get', get_proxy), web.get('/count', get_counts)])
-        loop.create_task(web._run_app(app, port=WEB_API_PORT))
+        loop.create_task(web._run_app(cls.web(), port=WEB_API_PORT))
         loop.run_forever()
 

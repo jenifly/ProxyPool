@@ -27,3 +27,23 @@ if __name__ == "__main__":
 继承`FreeProxyGetter`类，实现`async def crawl_xxx()`方法，方法名必须为`crawl_`前缀。`self.get_proxies()`接受两个参数，第一个为代理网页url的可迭代对象，第二个为正则表达式。
 
 在asyncio版本中，因所有方法都在一个事件循环中运行，在代理池上限设置的比较高时，可能会造成某些系统（如windows）`select`资源耗尽而抛出异常使得程序中断。对此，请使用`asyncio.Semaphore`限制并发量。
+
+在浏览器中访问`http://127.0.0.1:2345/get`即可获取可用代理。
+
+也可重写`poxyPool.py`中`PoxyPool`类的`web`的类方法实现自定义。伪代码：
+```python
+from aiohttp import web
+
+@classmethod
+def web(slef):
+    app = web.Application()
+    async def get_proxy(request):
+        return web.Response(text=str(conn.pop()))
+
+    async def get_counts(request):
+        return web.Response(text=str(conn.queue_len))
+
+    app.add_routes([web.get('/get', get_proxy), web.get('/count', get_counts)])
+    return app
+
+```
