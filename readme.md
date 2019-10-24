@@ -24,7 +24,7 @@ if __name__ == "__main__":
     PoxyPool.start(MyFreeProxyGetter)
 ```
 
-继承`FreeProxyGetter`类，实现`async def crawl_xxx()`方法，方法名必须为`crawl_`前缀。`self.get_proxies()`接受两个参数，第一个为代理网页url的可迭代对象，第二个为正则表达式。
+继承`FreeProxyGetter`类，实现`async def crawl_xxx()`方法，方法名必须为`crawl_`前缀。`self.get_proxies()`接受两个参数，第一个为代理网页url的容器序列类型，第二个为正则表达式。
 
 在asyncio版本中，因所有方法都在一个事件循环中运行，在代理池上限设置的比较高时，可能会造成某些系统（如windows）`select`资源耗尽而抛出异常使得程序中断。对此，请使用`asyncio.Semaphore`限制并发量。
 
