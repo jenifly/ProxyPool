@@ -34,16 +34,20 @@ if __name__ == "__main__":
 ```python
 from aiohttp import web
 
-@classmethod
-def web(slef):
+@staticmethod
+def web():
     app = web.Application()
+
     async def get_proxy(request):
         return web.Response(text=str(conn.pop()))
 
     async def get_counts(request):
         return web.Response(text=str(conn.queue_len))
 
-    app.add_routes([web.get('/get', get_proxy), web.get('/count', get_counts)])
+    app.add_routes([
+            web.get('/get', get_proxy),
+            web.get('/count', get_counts)
+        ])
     return app
 
 ```

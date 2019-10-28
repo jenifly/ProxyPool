@@ -1,4 +1,5 @@
 import asyncio
+import functools
 
 from aiohttp import web
 
@@ -11,9 +12,13 @@ from .validityTester import ValidityTester
 
 def Interval_cycle(t):
     def wrapper(func):
+        @functools.wraps(func)
         async def inner(*args, **kwargs):
             await func(*args, **kwargs)
             await asyncio.sleep(t)
+            for task in asyncio.Task.all_tasks():
+                if task._coro.__name__ not in ('valid_proxy', '_run_app', 'check_pool'):
+                    task.cancel()
             asyncio.create_task(inner(*args, **kwargs))
         return inner
     return wrapper
@@ -37,16 +42,20 @@ class PoxyPool:
         if conn.queue_len < POOL_UPPER_THRESHOLD:
             await adder.add_to_queue()
     
-    @classmethod
-    def web(slef):
+    @staticmethod
+    def web():
         app = web.Application()
+
         async def get_proxy(request):
             return web.Response(text=str(conn.pop()))
 
         async def get_counts(request):
             return web.Response(text=str(conn.queue_len))
 
-        app.add_routes([web.get('/get', get_proxy), web.get('/count', get_counts)])
+        app.add_routes([
+                web.get('/get', get_proxy),
+                web.get('/count', get_counts)
+            ])
         return app
 
     @classmethod
@@ -59,5 +68,12 @@ class PoxyPool:
         loop.create_task(cls.check_pool(adder))
         loop.create_task(cls.valid_proxy(tester))
         loop.create_task(web._run_app(cls.web(), port=WEB_API_PORT))
-        loop.run_forever()
-
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            for task in asyncio.Task.all_tasks():
+                task.cancel()
+            # socket可靠关闭，tcp完成四次挥手
+            loop.stop()
+            loop.run_forever()
+            loop.close()
