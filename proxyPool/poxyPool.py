@@ -46,10 +46,10 @@ class PoxyPool:
     def web():
         app = web.Application()
 
-        async def get_proxy(request):
+        def get_proxy(request):
             return web.Response(text=str(conn.pop()))
 
-        async def get_counts(request):
+        def get_counts(request):
             return web.Response(text=str(conn.queue_len))
 
         app.add_routes([
